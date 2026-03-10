@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Якість сну</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <section class="real-test-page">
+        <h1>Тест на якість сну</h1>
+        <p class="real-test-text">
+            Дай відповіді на запитання нижче. Обери варіант, який найкраще описує твій стан за останні 14 днів.
+        </p>
+
+        <form id="stress-test-form">
+            <div class="question-block">
+                <p>1. Як часто тобі було важко заснути?</p>
+                <label><input type="radio" name="q1" value="0"> Ніколи</label>
+                <label><input type="radio" name="q1" value="1"> Рідко</label>
+                <label><input type="radio" name="q1" value="2"> Інколи</label>
+                <label><input type="radio" name="q1" value="3"> Часто</label>
+                <label><input type="radio" name="q1" value="4"> Майже завжди</label>
+            </div>
+
+            <div class="question-block">
+                <p>2. Як часто ти прокидався(лася) посеред ночі і не міг(могла) заснути знову?</p>
+                <label><input type="radio" name="q2" value="0"> Ніколи</label>
+                <label><input type="radio" name="q2" value="1"> Рідко</label>
+                <label><input type="radio" name="q2" value="2"> Інколи</label>
+                <label><input type="radio" name="q2" value="3"> Часто</label>
+                <label><input type="radio" name="q2" value="4"> Майже завжди</label>
+            </div>
+
+            <div class="question-block">
+                <p>3. Як часто ти відчував(ла) втому, навіть коли спав(ла) достатньо годин?</p>
+                <label><input type="radio" name="q3" value="0"> Ніколи</label>
+                <label><input type="radio" name="q3" value="1"> Рідко</label>
+                <label><input type="radio" name="q3" value="2"> Інколи</label>
+                <label><input type="radio" name="q3" value="3"> Часто</label>
+                <label><input type="radio" name="q3" value="4"> Майже завжди</label>
+            </div>
+
+            <div class="question-block">
+                <p>4. Як часто ти відчував(ла) сонливість або зниження енергії вдень?</p>
+                <label><input type="radio" name="q4" value="0"> Ніколи</label>
+                <label><input type="radio" name="q4" value="1"> Рідко</label>
+                <label><input type="radio" name="q4" value="2"> Інколи</label>
+                <label><input type="radio" name="q4" value="3"> Часто</label>
+                <label><input type="radio" name="q4" value="4"> Майже завжди</label>
+            </div>
+
+            <div class="question-block">
+                <p>5. Як часто ти прокидався(лася) без відчуття відпочинку?</p>
+                <label><input type="radio" name="q5" value="0"> Ніколи</label>
+                <label><input type="radio" name="q5" value="1"> Рідко</label>
+                <label><input type="radio" name="q5" value="2"> Інколи</label>
+                <label><input type="radio" name="q5" value="3"> Часто</label>
+                <label><input type="radio" name="q5" value="4"> Майже завжди</label>
+            </div>
+
+            <button type="button" class="submit-test-btn" onclick="submitSleepTest()">
+                Завершити тест
+            </button>
+        </form>
+
+        <div id="stress-result-box" class="stress-result-box" style="display: none;">
+            <h2>Результат тесту</h2>
+            <p id="stress-result-text"></p>
+            <p id="stress-advice-text"></p>
+           <button class="test-btn" onclick="goToHomePage()">Повернутися на головну</button>
+        </div>
+    </section>
+
+    <script src="auth.js"></script>
+    <script src="sleep-test.js"></script>
+</body>
+</html>

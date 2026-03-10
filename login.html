@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Увійти / Реєстрація</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo">Mental Health</div>
+        <nav>
+            <a href="index.html#home">Головна</a>
+            <a href="index.html#tests">Тести</a>
+            <a href="index.html#tips">Поради</a>
+        </nav>
+        <button class="login-btn" onclick="window.location.href='index.html'">Повернутися</button>
+    </header>
+
+    <section class="real-test-page auth-page">
+        <div class="auth-card">
+            <div class="auth-tabs">
+                <button id="loginTab" class="auth-tab auth-tab--active" type="button">Вхід</button>
+                <button id="registerTab" class="auth-tab" type="button">Реєстрація</button>
+            </div>
+
+            <div id="loginForm" class="auth-form">
+                <h2>Увійти</h2>
+                <label>
+                    Електронна пошта
+                    <input type="email" id="loginEmail" required />
+                </label>
+                <label>
+                    Пароль
+                    <input type="password" id="loginPassword" required />
+                </label>
+                <button class="submit-test-btn" type="button" onclick="login()">Увійти</button>
+                <p class="auth-hint">Немає акаунта? <button class="link-btn" onclick="showRegister()">Зареєструватися</button></p>
+            </div>
+
+            <div id="registerForm" class="auth-form auth-form--hidden">
+                <h2>Реєстрація</h2>
+                <label>
+                    Електронна пошта
+                    <input type="email" id="registerEmail" required />
+                </label>
+                <label>
+                    Пароль
+                    <input type="password" id="registerPassword" required />
+                </label>
+                <label>
+                    Підтвердження паролю
+                    <input type="password" id="registerPasswordConfirm" required />
+                </label>
+                <button class="submit-test-btn" type="button" onclick="registerUser()">Зареєструватися</button>
+                <p class="auth-hint">Вже маєш акаунт? <button class="link-btn" onclick="showLogin()">Увійти</button></p>
+            </div>
+
+            <div id="authMessage" class="auth-message"></div>
+        </div>
+    </section>
+
+    <script src="auth.js"></script>
+    <script src="login.js"></script>
+</body>
+</html>

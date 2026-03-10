@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="uk">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mental Health</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+       <header>
+        <div class="logo">Mental Health</div>
+        <nav>
+            <a href="#home">Головна</a>
+            <a href="#tests">Тести</a>
+            <a href="#tips">Поради</a>
+        </nav>
+        <button class="login-btn" onclick="window.location.href='login.html'">Увійти</button>
+       </header>
+       <section class="hero" id="home">
+        <h1>Твій ментальний простір: Гармонія в навчанні</h1>
+        <p>Платформа для самодіагностики та підтримки психологічного здоров'я студентів </p>
+        <button onclick="window.location.href='stress-test.html'">Пройти швидкий тест</button>
+       </section>
+       <section class ="tests" id="tests"> 
+    <h2>Інтерактивні тести</h2>
+    <p class="tests-text">
+        Оберіть тест, щоб швидко оцінити свій психологічний стан та отримати корисні рекомендації.
+    </p>
+
+    <div class="test-cards">
+        <div class="card">
+            <div class="icon">🧠</div>
+            <h3>Шкала стресу</h3>
+            <p>Допоможе оцінити рівень напруги та перевантаження під час навчання.</p>
+           <button class="test-btn" onclick="window.location.href='stress-test.html'">
+    Пройти тест
+</button>
+        </div>
+
+        <div class="card">
+            <div class="icon">🔥</div>
+            <h3>Академічне вигорання</h3>
+            <p>Покаже, чи є ознаки емоційного виснаження та втрати мотивації.</p>
+            <button class="test-btn" onclick="window.location.href='burnout-test.html'">Пройти тест</button>
+        </div>
+
+        <div class="card">
+            <div class="icon">🌙</div>
+            <h3>Якість сну</h3>
+            <p>Допоможе зрозуміти, як сон впливає на настрій і концентрацію.</p>
+            <button class="test-btn" onclick="window.location.href='sleep-test.html'">Пройти тест</button>
+        </div>
+
+        <div class="card">
+            <div class="icon">🌿</div>
+            <h3>Тривожність</h3>
+            <p>Швидкий тест для оцінки рівня тривожності та емоційного фону.</p>
+            <button class="test-btn" onclick="window.location.href='anxiety-test.html'">Пройти тест</button>
+        </div>
+    </div>
+       </section>
+       <section class="media" id="media">
+    <h2>Фото та відео-поради</h2>
+    <p class="media-text">
+        Короткі практичні відео та спокійні візуальні матеріали допомагають знизити напругу, покращити концентрацію та знайти внутрішній баланс.
+    </p>
+
+    <div class="video-cards">
+        <div class="video-card">
+             <iframe
+            src="https://www.youtube.com/embed/TJPbEWDfRYg"
+            title="Відео 1"
+            allowfullscreen>
+            </iframe>
+            <h3>Техніка Помодоро</h3>
+            <p>Коротке відео про те, як краще організувати навчання без перевантаження.</p>
+        </div>
+
+        <div class="video-card">
+         <iframe
+        src="https://www.youtube.com/embed/kOHSw5KTKw0"
+            title="Дихання перед іспитом"
+            allowfullscreen>
+        </iframe>
+            <h3>Дихання перед іспитом</h3>
+            <p>Проста вправа для зменшення тривоги та відновлення спокою перед важливою подією.</p>
+        </div>
+
+        <div class="video-card">
+              <iframe
+            src="https://www.youtube.com/embed/B4KIHfj0AcY"
+            title="Вправа 5-4-3-2-1"
+            allowfullscreen>
+        </iframe>
+            <h3>Вправа 5-4-3-2-1</h3>
+      
+        </div>
+    </div>
+
+    <div class="photo-cards">
+        <div class="photo-card">
+            <img src="images/library.jpg" alt="Cтудент в бібліотеці">
+        </div>
+        <div class="photo-card">
+            <img src="images/park.jpg" alt="Cтудент в парку">
+        </div>
+        <div class="photo-card">
+            <img src="images/calm-room.jpg" alt="Спокійний простір для відпочинку">
+        </div>
+    </div>
+</section>
+
+<section class="dashboard" id="dashboard">
+    <h2>Dashboard Preview</h2>
+    <p class="dashboard-text">
+        Візуалізація результатів допомагає студенту краще розуміти свій психологічний стан, відстежувати зміни та вчасно звертати увагу на перевантаження.
+    </p>
+
+    <div class="dashboard-cards">
+        <div class="dashboard-card">
+            <h3>Стрес</h3>
+            <p class="dashboard-value" id="stress-value">0%</p>
+            <span id="stress-status">Дані відсутні</span>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Сон</h3>
+            <p class="dashboard-value" id="sleep-value">0%</p>
+            <span id="sleep-status">Дані відсутні</span>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Тривожність</h3>
+            <p class="dashboard-value" id="anxiety-value">0%</p>
+            <span id="anxiety-status">Дані відсутні</span>
+        </div>
+    </div>
+
+    <div class="chart-box">
+        <h3>Динаміка психологічного стану</h3>
+
+        <div class="chart">
+            <div class="bar" id="bar1" style="height: 0%;"></div>
+            <div class="bar" id="bar2" style="height: 0%;"></div>
+            <div class="bar" id="bar3" style="height: 0%;"></div>
+            <div class="bar" id="bar4" style="height: 0%;"></div>
+            <div class="bar" id="bar5" style="height: 0%;"></div>
+            <div class="bar" id="bar6" style="height: 0%;"></div>
+            <div class="bar" id="bar7" style="height: 0%;"></div>
+        </div>
+
+        <div class="chart-labels">
+            <span>Пн</span>
+            <span>Вт</span>
+            <span>Ср</span>
+            <span>Чт</span>
+            <span>Пт</span>
+            <span>Сб</span>
+            <span>Нд</span>
+        </div>
+    </div>
+</section>
+       <section class="tips" id="tips">
+    <h2>Корисні поради</h2>
+    <p class="tips-text">
+        Невеликі щоденні дії допомагають краще справлятися зі стресом, тривожністю та навчальним навантаженням.
+    </p>
+
+    <div class="tips-cards">
+        <div class="tip-card">
+            <h3>Як подолати прокрастинацію</h3>
+            <p>Розділяй великі завдання на маленькі кроки та починай з найпростішого.</p>
+        </div>
+
+        <div class="tip-card">
+            <h3>Техніки дихання перед іспитом</h3>
+            <p>Спробуй повільний вдих на 4 секунди, затримку на 4 і видих на 4 секунди.</p>
+        </div>
+
+        <div class="tip-card">
+            <h3>Як зменшити тривожність</h3>
+            <p>Сконцентруйся на тому, що бачиш, чуєш і відчуваєш навколо себе прямо зараз.</p>
+        </div>
+
+        <div class="tip-card">
+            <h3>Як покращити сон</h3>
+            <p>Намагайся лягати спати в один і той самий час і менше користуйся телефоном увечері.</p>
+        </div>
+    </div>
+</section>
+       <script src="auth.js"></script>
+       <script src="script.js"></script>
+    </body>
+</html>
