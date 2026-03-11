@@ -21,14 +21,8 @@ function getAnxietyAdvice(level) {
 }
 
 async function submitAnxietyTest() {
-    const userId = getCurrentUserId();
-    if (!userId) {
-        alert("Будь ласка, увійдіть, щоб пройти тест.");
-        window.location.href = "login.html";
-        return;
-    }
-
     const answers = [];
+    const anonymousSessionId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
     for (let i = 1; i <= 5; i++) {
         const selected = document.querySelector(`input[name="q${i}"]:checked`);
@@ -52,14 +46,16 @@ async function submitAnxietyTest() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                user_id: userId,
                 test_id: 4,
                 score: percentScore,
-                level: level
+                level: level,
+                answers: answers,
+                anonymous_session_id: anonymousSessionId
             })
         });
 
         const data = await response.json();
+        saveLatestTestResult("anxiety_test", percentScore, level);
         console.log("Результат тесту тривожності збережено:", data);
 
         document.getElementById("stress-result-box").style.display = "block";

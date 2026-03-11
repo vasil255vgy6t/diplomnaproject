@@ -21,14 +21,8 @@ function getStressAdvice(level) {
 }
 
 async function submitStressTest() {
-    const userId = getCurrentUserId();
-    if (!userId) {
-        alert("Будь ласка, увійдіть, щоб пройти тест.");
-        window.location.href = "login.html";
-        return;
-    }
-
     const answers = [];
+    const anonymousSessionId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
     for (let i = 1; i <= 5; i++) {
         const selected = document.querySelector(`input[name="q${i}"]:checked`);
@@ -53,14 +47,16 @@ async function submitStressTest() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                user_id: userId,
                 test_id: 1,
                 score: percentScore,
-                level: level
+                level: level,
+                answers: answers,
+                anonymous_session_id: anonymousSessionId
             })
         });
 
         const data = await response.json();
+        saveLatestTestResult("stress_test", percentScore, level);
         console.log("Результат тесту збережено:", data);
 
         document.getElementById("stress-result-box").style.display = "block";

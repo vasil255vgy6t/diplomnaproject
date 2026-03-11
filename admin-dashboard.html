@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адмін-панель статистики</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo">Mental Health</div>
+        <nav>
+            <a href="index.html">Головна</a>
+            <a href="#stats">Статистика</a>
+        </nav>
+        <button class="login-btn" onclick="logoutAdmin()">Вийти</button>
+    </header>
+
+    <section class="dashboard" id="stats">
+        <h2>Загальна статистика проходження тестів</h2>
+        <p class="dashboard-text">Сторінка для адміністрації навчального закладу.</p>
+
+        <div class="dashboard-cards">
+            <div class="dashboard-card">
+                <h3>Всього проходжень</h3>
+                <p class="dashboard-value" id="total-submissions">0</p>
+                <span>Усі тести</span>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>Середній бал</h3>
+                <p class="dashboard-value" id="overall-avg">0%</p>
+                <span>По всіх проходженнях</span>
+            </div>
+        </div>
+
+        <div class="chart-box">
+            <h3>Середні показники по тестах</h3>
+            <table id="stats-table" style="width:100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding: 10px;">Тест</th>
+                        <th style="text-align:left; padding: 10px;">Кількість проходжень</th>
+                        <th style="text-align:left; padding: 10px;">Середній бал</th>
+                        <th style="text-align:left; padding: 10px;">Мін</th>
+                        <th style="text-align:left; padding: 10px;">Макс</th>
+                    </tr>
+                </thead>
+                <tbody id="stats-table-body"></tbody>
+            </table>
+        </div>
+
+        <div class="chart-box" style="margin-top: 24px;">
+            <h3>Статистика по питаннях</h3>
+            <table style="width:100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding: 10px;">Тест</th>
+                        <th style="text-align:left; padding: 10px;">№</th>
+                        <th style="text-align:left; padding: 10px;">Питання</th>
+                        <th style="text-align:left; padding: 10px;">К-сть відповідей</th>
+                        <th style="text-align:left; padding: 10px;">Середня відповідь (0..4)</th>
+                    </tr>
+                </thead>
+                <tbody id="question-stats-body"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <script src="auth.js"></script>
+    <script src="admin-dashboard.js"></script>
+</body>
+</html>
