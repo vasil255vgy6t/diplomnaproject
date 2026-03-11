@@ -52,6 +52,7 @@ async function submitSleepTest() {
         });
 
         const data = await response.json();
+        saveLatestTestResult("sleep_test", percentScore, level);
         console.log("Результат тесту на сон збережено:", data);
 
         document.getElementById("stress-result-box").style.display = "block";

@@ -53,6 +53,7 @@ async function submitStressTest() {
         });
 
         const data = await response.json();
+        saveLatestTestResult("stress_test", percentScore, level);
         console.log("Результат тесту збережено:", data);
 
         document.getElementById("stress-result-box").style.display = "block";

@@ -52,6 +52,7 @@ async function submitBurnoutTest() {
         });
 
         const data = await response.json();
+        saveLatestTestResult("burnout_test", percentScore, level);
         console.log("Результат вигорання збережено:", data);
 
         document.getElementById("stress-result-box").style.display = "block";

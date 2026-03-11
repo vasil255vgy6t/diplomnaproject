@@ -52,6 +52,7 @@ async function submitAnxietyTest() {
         });
 
         const data = await response.json();
+        saveLatestTestResult("anxiety_test", percentScore, level);
         console.log("Результат тесту тривожності збережено:", data);
 
         document.getElementById("stress-result-box").style.display = "block";

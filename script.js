@@ -17,85 +17,62 @@ const bars = [
 ];
 
 function getStressStatus(value) {
-    if (value === 0) return "Дані відсутні";
+    if (value === 0) return "Пройди тест";
     if (value <= 33) return "Низький рівень";
     if (value <= 66) return "Помірний рівень";
     return "Високий рівень";
 }
 
 function getSleepStatus(value) {
-    if (value === 0) return "Дані відсутні";
+    if (value === 0) return "Пройди тест";
     if (value <= 33) return "Поганий стан";
     if (value <= 66) return "Середній стан";
     return "Хороший стан";
 }
 
 function getAnxietyStatus(value) {
-    if (value === 0) return "Дані відсутні";
+    if (value === 0) return "Пройди тест";
     if (value <= 33) return "Низький рівень";
     if (value <= 66) return "Помірний рівень";
     return "Високий рівень";
 }
 
 function updateDashboard(stress, sleep, anxiety) {
-    stressValue.textContent = stress + "%";
-    sleepValue.textContent = sleep + "%";
-    anxietyValue.textContent = anxiety + "%";
+    stressValue.textContent = `${stress}%`;
+    sleepValue.textContent = `${sleep}%`;
+    anxietyValue.textContent = `${anxiety}%`;
 
     stressStatus.textContent = getStressStatus(stress);
     sleepStatus.textContent = getSleepStatus(sleep);
     anxietyStatus.textContent = getAnxietyStatus(anxiety);
 
     const chartData = [stress, sleep, anxiety, 20, 35, 50, 65];
-
     bars.forEach((bar, index) => {
         if (bar) {
-            bar.style.height = chartData[index] + "%";
+            bar.style.height = `${chartData[index]}%`;
         }
     });
 }
 
-function setAdminOnlyStatus() {
-    stressStatus.textContent = "Статистика доступна адміністрації";
-    sleepStatus.textContent = "Статистика доступна адміністрації";
-    anxietyStatus.textContent = "Статистика доступна адміністрації";
+function showPromptToTakeTests() {
+    stressStatus.textContent = "Доступно після проходження тесту";
+    sleepStatus.textContent = "Доступно після проходження тесту";
+    anxietyStatus.textContent = "Доступно після проходження тесту";
 }
 
-async function loadDashboard() {
-    const token = getAdminToken();
-
-    if (!token) {
+function loadDashboardFromLatestResults() {
+    if (!hasCompletedAnyTest()) {
         updateDashboard(0, 0, 0);
-        setAdminOnlyStatus();
+        showPromptToTakeTests();
         return;
     }
 
-    try {
-        const response = await fetch("http://localhost:3000/api/admin/stats", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+    const latest = getLatestTestResults();
+    const stress = Number(latest.stress_test?.score || 0);
+    const sleep = Number(latest.sleep_test?.score || 0);
+    const anxiety = Number(latest.anxiety_test?.score || 0);
 
-        if (!response.ok) {
-            updateDashboard(0, 0, 0);
-            setAdminOnlyStatus();
-            return;
-        }
-
-        const data = await response.json();
-        const byCode = Object.fromEntries(data.testsStats.map((item) => [item.code, item]));
-
-        const stress = Number(byCode.stress_test?.avg_score || 0);
-        const sleep = Number(byCode.sleep_test?.avg_score || 0);
-        const anxiety = Number(byCode.anxiety_test?.avg_score || 0);
-
-        updateDashboard(stress, sleep, anxiety);
-    } catch (error) {
-        console.error("Помилка завантаження dashboard:", error);
-        updateDashboard(0, 0, 0);
-        setAdminOnlyStatus();
-    }
+    updateDashboard(stress, sleep, anxiety);
 }
 
-loadDashboard();
+loadDashboardFromLatestResults();
