@@ -21,13 +21,6 @@ function getSleepAdvice(level) {
 }
 
 async function submitSleepTest() {
-    const userId = getCurrentUserId();
-    if (!userId) {
-        alert("Будь ласка, увійдіть, щоб пройти тест.");
-        window.location.href = "login.html";
-        return;
-    }
-
     const answers = [];
 
     for (let i = 1; i <= 5; i++) {
@@ -52,7 +45,6 @@ async function submitSleepTest() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                user_id: userId,
                 test_id: 3,
                 score: percentScore,
                 level: level
@@ -60,6 +52,7 @@ async function submitSleepTest() {
         });
 
         const data = await response.json();
+        saveLatestTestResult("sleep_test", percentScore, level);
         console.log("Результат тесту на сон збережено:", data);
 
         document.getElementById("stress-result-box").style.display = "block";

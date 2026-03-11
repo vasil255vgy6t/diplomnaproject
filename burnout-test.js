@@ -21,13 +21,6 @@ function getBurnoutAdvice(level) {
 }
 
 async function submitBurnoutTest() {
-    const userId = getCurrentUserId();
-    if (!userId) {
-        alert("Будь ласка, увійдіть, щоб пройти тест.");
-        window.location.href = "login.html";
-        return;
-    }
-
     const answers = [];
 
     for (let i = 1; i <= 5; i++) {
@@ -52,7 +45,6 @@ async function submitBurnoutTest() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                user_id: userId,
                 test_id: 2,
                 score: percentScore,
                 level: level
@@ -60,6 +52,7 @@ async function submitBurnoutTest() {
         });
 
         const data = await response.json();
+        saveLatestTestResult("burnout_test", percentScore, level);
         console.log("Результат вигорання збережено:", data);
 
         document.getElementById("stress-result-box").style.display = "block";

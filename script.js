@@ -17,138 +17,62 @@ const bars = [
 ];
 
 function getStressStatus(value) {
-    if (value === 0) return "Дані відсутні";
+    if (value === 0) return "Пройди тест";
     if (value <= 33) return "Низький рівень";
     if (value <= 66) return "Помірний рівень";
     return "Високий рівень";
 }
 
 function getSleepStatus(value) {
-    if (value === 0) return "Дані відсутні";
+    if (value === 0) return "Пройди тест";
     if (value <= 33) return "Поганий стан";
     if (value <= 66) return "Середній стан";
     return "Хороший стан";
 }
 
 function getAnxietyStatus(value) {
-    if (value === 0) return "Дані відсутні";
+    if (value === 0) return "Пройди тест";
     if (value <= 33) return "Низький рівень";
     if (value <= 66) return "Помірний рівень";
     return "Високий рівень";
 }
 
 function updateDashboard(stress, sleep, anxiety) {
-    stressValue.textContent = stress + "%";
-    sleepValue.textContent = sleep + "%";
-    anxietyValue.textContent = anxiety + "%";
+    stressValue.textContent = `${stress}%`;
+    sleepValue.textContent = `${sleep}%`;
+    anxietyValue.textContent = `${anxiety}%`;
 
     stressStatus.textContent = getStressStatus(stress);
     sleepStatus.textContent = getSleepStatus(sleep);
     anxietyStatus.textContent = getAnxietyStatus(anxiety);
 
     const chartData = [stress, sleep, anxiety, 20, 35, 50, 65];
-
     bars.forEach((bar, index) => {
         if (bar) {
-            bar.style.height = chartData[index] + "%";
+            bar.style.height = `${chartData[index]}%`;
         }
     });
 }
 
-async function loadDashboard(userId = getCurrentUserId()) {
-    if (!userId) {
+function showPromptToTakeTests() {
+    stressStatus.textContent = "Доступно після проходження тесту";
+    sleepStatus.textContent = "Доступно після проходження тесту";
+    anxietyStatus.textContent = "Доступно після проходження тесту";
+}
+
+function loadDashboardFromLatestResults() {
+    if (!hasCompletedAnyTest()) {
         updateDashboard(0, 0, 0);
+        showPromptToTakeTests();
         return;
     }
 
-    try {
-        const response = await fetch(`http://localhost:3000/api/dashboard/${userId}`);
-        const data = await response.json();
+    const latest = getLatestTestResults();
+    const stress = Number(latest.stress_test?.score || 0);
+    const sleep = Number(latest.sleep_test?.score || 0);
+    const anxiety = Number(latest.anxiety_test?.score || 0);
 
-        if (!data.results || data.results.length === 0) {
-            updateDashboard(0, 0, 0);
-            return;
-        }
-
-        let stress = 0;
-        let sleep = 0;
-        let anxiety = 0;
-
-        data.results.forEach((item) => {
-            if (item.code === "stress_test" && stress === 0) {
-                stress = item.score;
-            }
-
-            if (item.code === "sleep_test" && sleep === 0) {
-                sleep = item.score;
-            }
-
-            if (item.code === "anxiety_test" && anxiety === 0) {
-                anxiety = item.score;
-            }
-        });
-
-        updateDashboard(stress, sleep, anxiety);
-    } catch (error) {
-        console.error("Помилка завантаження dashboard:", error);
-        updateDashboard(0, 0, 0);
-    }
+    updateDashboard(stress, sleep, anxiety);
 }
 
-loadDashboard();
-function getStressLevel(rawScore) {
-    if (rawScore <= 6) return "Низький рівень";
-    if (rawScore <= 13) return "Помірний рівень";
-    return "Високий рівень";
-}
-
-function calculateStressPercent(rawScore) {
-    return Math.round((rawScore / 20) * 100);
-}
-
-async function submitStressTest() {
-    const answers = [];
-
-    for (let i = 1; i <= 5; i++) {
-        const selected = document.querySelector(`input[name="q${i}"]:checked`);
-
-        if (!selected) {
-            alert("Будь ласка, дай відповідь на всі запитання.");
-            return;
-        }
-
-        answers.push(Number(selected.value));
-    }
-
-    const rawScore = answers.reduce((sum, value) => sum + value, 0);
-    const percentScore = calculateStressPercent(rawScore);
-    const level = getStressLevel(rawScore);
-
-    const resultText = document.getElementById("stress-result-text");
-    resultText.textContent = `Твій результат: ${percentScore}% — ${level}.`;
-
-    try {
-        const response = await fetch("http://localhost:3000/api/test-results", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                user_id: 1,
-                test_id: 1,
-                score: percentScore,
-                level: level
-            })
-        });
-
-        const data = await response.json();
-        console.log("Результат стрес-тесту збережено:", data);
-
-        await loadDashboard(1);
-
-        alert("Результат тесту успішно збережено!");
-    } catch (error) {
-        console.error("Помилка при збереженні стрес-тесту:", error);
-        alert("Не вдалося зберегти результат тесту.");
-    }
-}
+loadDashboardFromLatestResults();
