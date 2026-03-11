@@ -21,13 +21,6 @@ function getAnxietyAdvice(level) {
 }
 
 async function submitAnxietyTest() {
-    const userId = getCurrentUserId();
-    if (!userId) {
-        alert("Будь ласка, увійдіть, щоб пройти тест.");
-        window.location.href = "login.html";
-        return;
-    }
-
     const answers = [];
 
     for (let i = 1; i <= 5; i++) {
@@ -52,7 +45,6 @@ async function submitAnxietyTest() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                user_id: userId,
                 test_id: 4,
                 score: percentScore,
                 level: level

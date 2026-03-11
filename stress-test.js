@@ -21,13 +21,6 @@ function getStressAdvice(level) {
 }
 
 async function submitStressTest() {
-    const userId = getCurrentUserId();
-    if (!userId) {
-        alert("Будь ласка, увійдіть, щоб пройти тест.");
-        window.location.href = "login.html";
-        return;
-    }
-
     const answers = [];
 
     for (let i = 1; i <= 5; i++) {
@@ -53,7 +46,6 @@ async function submitStressTest() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                user_id: userId,
                 test_id: 1,
                 score: percentScore,
                 level: level
