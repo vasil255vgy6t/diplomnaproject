@@ -4,14 +4,6 @@ const { Pool } = require("pg");
 const crypto = require("crypto");
 require("dotenv").config();
 
-function hashPassword(password, salt = null) {
-    const actualSalt = salt || crypto.randomBytes(16).toString("hex");
-    const hash = crypto
-        .pbkdf2Sync(password, actualSalt, 100000, 64, "sha512")
-        .toString("hex");
-    return { salt: actualSalt, hash };
-}
-
 const app = express();
 
 app.use(cors());
@@ -24,6 +16,26 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
 });
+
+const adminSessions = new Map();
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@college.local";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+
+function createAdminToken() {
+    return crypto.randomBytes(24).toString("hex");
+}
+
+function requireAdminAuth(req, res, next) {
+    const header = req.headers.authorization || "";
+    const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+
+    if (!token || !adminSessions.has(token)) {
+        return res.status(401).json({ message: "Потрібна авторизація адміністратора" });
+    }
+
+    req.admin = adminSessions.get(token);
+    next();
+}
 
 app.get("/", (req, res) => {
     res.send("Backend для Mental Health працює");
@@ -47,7 +59,6 @@ app.get("/api/test-db", async (req, res) => {
 app.get("/api/tests", async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM tests ORDER BY id ASC");
-
         res.json({
             message: "Список тестів отримано успішно",
             tests: result.rows,
@@ -62,9 +73,9 @@ app.get("/api/tests", async (req, res) => {
 
 app.post("/api/test-results", async (req, res) => {
     try {
-        const { user_id, test_id, score, level } = req.body;
+        const { test_id, score, level } = req.body;
 
-        if (!user_id || !test_id || score === undefined || !level) {
+        if (!test_id || score === undefined || !level) {
             return res.status(400).json({
                 message: "Не всі поля заповнені",
             });
@@ -72,11 +83,11 @@ app.post("/api/test-results", async (req, res) => {
 
         const result = await pool.query(
             `
-            INSERT INTO test_results (user_id, test_id, score, level)
-            VALUES ($1, $2, $3, $4)
+            INSERT INTO test_results (test_id, score, level)
+            VALUES ($1, $2, $3)
             RETURNING *;
             `,
-            [user_id, test_id, score, level]
+            [test_id, score, level]
         );
 
         res.status(201).json({
@@ -91,120 +102,83 @@ app.post("/api/test-results", async (req, res) => {
     }
 });
 
-app.get("/api/dashboard/:userId", async (req, res) => {
-    try {
-        const userId = req.params.userId;
+app.post("/api/admin/login", (req, res) => {
+    const { email, password } = req.body;
 
-        const result = await pool.query(
-            `
-            SELECT 
-                tr.id,
-                tr.user_id,
-                tr.test_id,
-                tr.score,
-                tr.level,
-                tr.created_at,
+    if (!email || !password) {
+        return res.status(400).json({ message: "Не всі поля заповнені" });
+    }
+
+    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ message: "Неправильний логін або пароль адміністратора" });
+    }
+
+    const token = createAdminToken();
+    adminSessions.set(token, { email, createdAt: Date.now() });
+
+    res.json({
+        message: "Успішний вхід адміністратора",
+        token,
+        email,
+    });
+});
+
+app.post("/api/admin/logout", requireAdminAuth, (req, res) => {
+    const token = req.headers.authorization.slice(7);
+    adminSessions.delete(token);
+    res.json({ message: "Вихід виконано" });
+});
+
+app.get("/api/admin/stats", requireAdminAuth, async (req, res) => {
+    try {
+        const overall = await pool.query(`
+            SELECT
+                COUNT(*)::int AS total_submissions,
+                COALESCE(ROUND(AVG(score)::numeric, 1), 0) AS overall_avg_score
+            FROM test_results;
+        `);
+
+        const testsStats = await pool.query(`
+            SELECT
+                t.id,
                 t.code,
-                t.title
+                t.title,
+                COUNT(tr.id)::int AS submissions,
+                COALESCE(ROUND(AVG(tr.score)::numeric, 1), 0) AS avg_score,
+                COALESCE(MIN(tr.score), 0) AS min_score,
+                COALESCE(MAX(tr.score), 0) AS max_score
+            FROM tests t
+            LEFT JOIN test_results tr ON tr.test_id = t.id
+            GROUP BY t.id, t.code, t.title
+            ORDER BY t.id ASC;
+        `);
+
+        const levels = await pool.query(`
+            SELECT
+                t.code,
+                tr.level,
+                COUNT(*)::int AS count
             FROM test_results tr
-            JOIN tests t ON tr.test_id = t.id
-            WHERE tr.user_id = $1
-            ORDER BY tr.created_at DESC;
-            `,
-            [userId]
-        );
+            JOIN tests t ON t.id = tr.test_id
+            GROUP BY t.code, tr.level
+            ORDER BY t.code, tr.level;
+        `);
 
         res.json({
-            message: "Дані dashboard отримано успішно",
-            results: result.rows,
+            message: "Агреговану статистику отримано успішно",
+            overall: overall.rows[0],
+            testsStats: testsStats.rows,
+            levels: levels.rows,
         });
     } catch (error) {
-        console.error("Помилка при отриманні dashboard:", error);
+        console.error("Помилка при отриманні статистики:", error);
         res.status(500).json({
-            message: "Помилка при отриманні даних dashboard",
+            message: "Помилка при отриманні агрегованої статистики",
         });
-    }
-});
-
-app.post("/api/register", async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        if (!email || !password) {
-            return res.status(400).json({ message: "Не всі поля заповнені" });
-        }
-
-        const { salt, hash } = hashPassword(password);
-
-        const result = await pool.query(
-            `
-            INSERT INTO users (email, password_hash, salt)
-            VALUES ($1, $2, $3)
-            RETURNING id, email;
-            `,
-            [email, hash, salt]
-        );
-
-        res.status(201).json({
-            message: "Реєстрація успішна",
-            user_id: result.rows[0].id,
-            email: result.rows[0].email,
-        });
-    } catch (error) {
-        console.error("Помилка при реєстрації:", error);
-        if (error.code === "23505") {
-            return res.status(409).json({ message: "Користувач з таким email вже існує" });
-        }
-        res.status(500).json({ message: "Помилка при реєстрації" });
-    }
-});
-
-app.post("/api/login", async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        if (!email || !password) {
-            return res.status(400).json({ message: "Не всі поля заповнені" });
-        }
-
-        const result = await pool.query(
-            `SELECT id, email, password_hash, salt FROM users WHERE email = $1 LIMIT 1;`,
-            [email]
-        );
-
-        if (result.rows.length === 0) {
-            return res.status(401).json({ message: "Неправильна електронна пошта або пароль" });
-        }
-
-        const user = result.rows[0];
-        const { hash } = hashPassword(password, user.salt);
-
-        if (hash !== user.password_hash) {
-            return res.status(401).json({ message: "Неправильна електронна пошта або пароль" });
-        }
-
-        res.json({
-            message: "Успішний вхід",
-            user_id: user.id,
-            email: user.email,
-        });
-    } catch (error) {
-        console.error("Помилка при вході:", error);
-        res.status(500).json({ message: "Помилка при вході" });
     }
 });
 
 async function initializeDatabase() {
-    await pool.query(`
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            email TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            salt TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT NOW()
-        );
-    `);
-
     await pool.query(`
         CREATE TABLE IF NOT EXISTS tests (
             id SERIAL PRIMARY KEY,
@@ -217,13 +191,18 @@ async function initializeDatabase() {
     await pool.query(`
         CREATE TABLE IF NOT EXISTS test_results (
             id SERIAL PRIMARY KEY,
-            user_id INTEGER NOT NULL,
+            user_id INTEGER,
             test_id INTEGER NOT NULL,
             score INTEGER NOT NULL,
             level TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT NOW()
         );
     `);
+
+    await pool.query(`
+        ALTER TABLE test_results
+        ALTER COLUMN user_id DROP NOT NULL;
+    `).catch(() => undefined);
 
     await pool.query(`
         INSERT INTO tests (code, title, description)

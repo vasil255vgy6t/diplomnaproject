@@ -1,18 +1,21 @@
-function getCurrentUserId() {
-    const id = localStorage.getItem("user_id");
-    return id ? Number(id) : 0;
+function getAdminToken() {
+    return localStorage.getItem("admin_token") || "";
 }
 
-function setCurrentUserId(id) {
-    localStorage.setItem("user_id", String(id));
+function setAdminToken(token) {
+    localStorage.setItem("admin_token", token);
 }
 
-function clearCurrentUser() {
-    localStorage.removeItem("user_id");
+function clearAdminSession() {
+    localStorage.removeItem("admin_token");
 }
 
-function requireLogin(redirectTo = "login.html") {
-    if (!getCurrentUserId()) {
+function isAdminLoggedIn() {
+    return Boolean(getAdminToken());
+}
+
+function requireAdminLogin(redirectTo = "login.html") {
+    if (!isAdminLoggedIn()) {
         window.location.href = redirectTo;
         return false;
     }
