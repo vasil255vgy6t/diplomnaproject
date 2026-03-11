@@ -35,7 +35,7 @@ router.get("/api/tests", (req, res) => {
 
 router.post("/api/test-results", (req, res) => {
     try {
-        const { test_id, score, level } = req.body;
+        const { test_id, score, level, answers = [], anonymous_session_id } = req.body;
 
         if (!test_id || score === undefined || !level) {
             return res.status(400).json({ message: "Не всі поля заповнені" });
@@ -46,10 +46,32 @@ router.post("/api/test-results", (req, res) => {
             [Number(test_id), Number(score), level]
         );
 
-        const inserted = query("SELECT * FROM test_results ORDER BY id DESC LIMIT 1;");
+        const inserted = query("SELECT * FROM test_results ORDER BY id DESC LIMIT 1;")[0];
+
+        const test = query("SELECT code FROM tests WHERE id = ? LIMIT 1;", [Number(test_id)])[0];
+        if (test && Array.isArray(answers) && answers.length > 0 && anonymous_session_id) {
+            const questions = query(
+                "SELECT id, question_order FROM test_questions WHERE test_code = ? ORDER BY question_order ASC;",
+                [test.code]
+            );
+
+            answers.forEach((answerValue, idx) => {
+                const question = questions[idx];
+                if (!question) {
+                    return;
+                }
+
+                run(
+                    `INSERT INTO anonymous_answers (anonymous_session_id, test_code, question_id, answer_value)
+                     VALUES (?, ?, ?, ?);`,
+                    [anonymous_session_id, test.code, question.id, Number(answerValue)]
+                );
+            });
+        }
+
         res.status(201).json({
             message: "Результат тесту успішно збережено",
-            test_result: inserted[0],
+            test_result: inserted,
         });
     } catch (error) {
         console.error("Помилка при збереженні результату:", error);

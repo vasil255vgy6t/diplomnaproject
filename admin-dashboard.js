@@ -15,6 +15,23 @@ function renderStatsTable(rows) {
     });
 }
 
+function renderQuestionStats(rows) {
+    const body = document.getElementById("question-stats-body");
+    body.innerHTML = "";
+
+    rows.forEach((row) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td style="padding: 10px; border-top: 1px solid #dbe4ff;">${row.test_code}</td>
+            <td style="padding: 10px; border-top: 1px solid #dbe4ff;">${row.question_order}</td>
+            <td style="padding: 10px; border-top: 1px solid #dbe4ff;">${row.question_text}</td>
+            <td style="padding: 10px; border-top: 1px solid #dbe4ff;">${row.answers_count}</td>
+            <td style="padding: 10px; border-top: 1px solid #dbe4ff;">${row.avg_answer_value}</td>
+        `;
+        body.appendChild(tr);
+    });
+}
+
 async function loadAdminStats() {
     if (!requireAdminLogin()) {
         return;
@@ -39,6 +56,7 @@ async function loadAdminStats() {
         document.getElementById("total-submissions").textContent = data.overall.total_submissions;
         document.getElementById("overall-avg").textContent = `${data.overall.overall_avg_score}%`;
         renderStatsTable(data.testsStats);
+        renderQuestionStats(data.questionStats || []);
     } catch (error) {
         console.error("Помилка завантаження статистики:", error);
     }

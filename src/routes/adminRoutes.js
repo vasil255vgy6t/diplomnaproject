@@ -1,7 +1,7 @@
 const express = require("express");
-const { ADMIN_EMAIL, ADMIN_PASSWORD } = require("../config/env");
 const { createSession, hasSession, deleteSession } = require("../services/adminSessionService");
 const { query } = require("../db/sqlite");
+const { verifyPassword } = require("../services/securityService");
 
 const router = express.Router();
 
@@ -24,12 +24,21 @@ router.post("/api/admin/login", (req, res) => {
         return res.status(400).json({ message: "Не всі поля заповнені" });
     }
 
-    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+    const admin = query(
+        "SELECT id, email, password_hash, salt, is_active FROM admins WHERE email = ? LIMIT 1;",
+        [email]
+    )[0];
+
+    if (!admin || Number(admin.is_active) !== 1) {
         return res.status(401).json({ message: "Неправильний логін або пароль адміністратора" });
     }
 
-    const token = createSession(email);
-    res.json({ message: "Успішний вхід адміністратора", token, email });
+    if (!verifyPassword(password, admin.salt, admin.password_hash)) {
+        return res.status(401).json({ message: "Неправильний логін або пароль адміністратора" });
+    }
+
+    const token = createSession(admin.email);
+    res.json({ message: "Успішний вхід адміністратора", token, email: admin.email });
 });
 
 router.post("/api/admin/logout", requireAdminAuth, (req, res) => {
@@ -61,10 +70,24 @@ router.get("/api/admin/stats", requireAdminAuth, (req, res) => {
             ORDER BY t.id ASC;
         `);
 
+        const questionStats = query(`
+            SELECT
+                tq.test_code,
+                tq.question_order,
+                tq.question_text,
+                COUNT(aa.id) AS answers_count,
+                COALESCE(ROUND(AVG(aa.answer_value), 2), 0) AS avg_answer_value
+            FROM test_questions tq
+            LEFT JOIN anonymous_answers aa ON aa.question_id = tq.id
+            GROUP BY tq.id, tq.test_code, tq.question_order, tq.question_text
+            ORDER BY tq.test_code, tq.question_order;
+        `);
+
         res.json({
             message: "Агреговану статистику отримано успішно",
             overall,
             testsStats,
+            questionStats,
         });
     } catch (error) {
         console.error("Помилка при отриманні статистики:", error);
