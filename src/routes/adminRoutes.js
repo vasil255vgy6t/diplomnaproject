@@ -1,7 +1,8 @@
 const express = require("express");
 const { createSession, hasSession, deleteSession } = require("../services/adminSessionService");
-const { query } = require("../db/sqlite");
+const { query, run } = require("../db/sqlite");
 const { verifyPassword } = require("../services/securityService");
+const { hashPassword } = require("../services/securityService");
 
 const router = express.Router();
 
@@ -44,6 +45,45 @@ router.post("/api/admin/login", (req, res) => {
 router.post("/api/admin/logout", requireAdminAuth, (req, res) => {
     deleteSession(req.adminToken);
     res.json({ message: "Вихід виконано" });
+});
+
+router.post("/api/admin/register", requireAdminAuth, (req, res) => {
+    try {
+        const { email, password, institution } = req.body;
+
+        if (!email || !password || !institution) {
+            return res.status(400).json({ message: "Не всі поля заповнені" });
+        }
+
+        if (String(password).length < 6) {
+            return res.status(400).json({ message: "Пароль повинен містити щонайменше 6 символів" });
+        }
+
+        const existing = query("SELECT id FROM admins WHERE email = ? LIMIT 1;", [email])[0];
+        if (existing) {
+            return res.status(409).json({ message: "Адміністратор з такою поштою вже існує" });
+        }
+
+        const { salt, hash } = hashPassword(password);
+        run(
+            `INSERT INTO admins (email, password_hash, salt, institution, is_active)
+             VALUES (?, ?, ?, ?, 1);`,
+            [email, hash, salt, institution]
+        );
+
+        const created = query(
+            "SELECT id, email, institution, is_active, created_at FROM admins WHERE email = ? LIMIT 1;",
+            [email]
+        )[0];
+
+        res.status(201).json({
+            message: "Нового адміністратора успішно зареєстровано",
+            admin: created,
+        });
+    } catch (error) {
+        console.error("Помилка реєстрації адміністратора:", error);
+        res.status(500).json({ message: "Помилка реєстрації адміністратора" });
+    }
 });
 
 router.get("/api/admin/stats", requireAdminAuth, (req, res) => {

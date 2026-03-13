@@ -64,10 +64,17 @@ function initializeDatabase() {
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
             salt TEXT NOT NULL,
+            institution TEXT,
             is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0,1)),
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
     `);
+
+    const adminColumns = query("PRAGMA table_info(admins);");
+    const hasInstitutionColumn = adminColumns.some((column) => column.name === "institution");
+    if (!hasInstitutionColumn) {
+        run("ALTER TABLE admins ADD COLUMN institution TEXT;");
+    }
 
     run(`
         CREATE TABLE IF NOT EXISTS test_questions (
