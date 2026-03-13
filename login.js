@@ -37,3 +37,5 @@ async function adminLogin() {
         showAuthMessage("Помилка при вході. Спробуйте пізніше.", true);
     }
 }
+
+redirectLoggedAdminFromLogin();
