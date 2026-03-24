@@ -319,6 +319,26 @@ nav a:hover {
     line-height: 1.6;
 }
 
+/* Відео в один ряд + компактний плеєр як у картках тестів */
+.video-cards {
+    flex-wrap: nowrap;
+    align-items: stretch;
+}
+
+.video-card {
+    width: 260px;
+    padding: 18px;
+}
+
+.video-card iframe {
+    width: 100%;
+    height: 150px;
+    border: none;
+    border-radius: 16px;
+    display: block;
+    margin-bottom: 14px;
+}
+
 /* Фото-картки */
 .photo-cards {
     display: flex;
@@ -785,6 +805,10 @@ nav a:hover {
     .card p,
     .tip-card p {
         font-size: 15px;
+    }
+
+    .video-cards {
+        flex-wrap: wrap;
     }
 }
 .real-test {
