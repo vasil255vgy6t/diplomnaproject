@@ -44,3 +44,18 @@ function getLatestTestResults() {
 function hasCompletedAnyTest() {
     return localStorage.getItem("has_completed_test") === "1";
 }
+
+function goToAdminArea() {
+    if (isAdminLoggedIn()) {
+        window.location.href = "admin-dashboard.html";
+        return;
+    }
+
+    window.location.href = "login.html";
+}
+
+function redirectLoggedAdminFromLogin() {
+    if (isAdminLoggedIn()) {
+        window.location.href = "admin-dashboard.html";
+    }
+}

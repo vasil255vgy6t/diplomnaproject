@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реєстрація адміністратора</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo">Mental Health</div>
+        <nav>
+            <a href="index.html">Головна</a>
+            <a href="admin-dashboard.html">Адмін-панель</a>
+        </nav>
+        <button class="login-btn" onclick="logoutAdmin()">Вийти</button>
+    </header>
+
+    <section class="real-test-page auth-page">
+        <div class="auth-card">
+            <div class="auth-form">
+                <h2>Реєстрація нового адміністратора</h2>
+
+                <label>
+                    Електронна пошта
+                    <input type="email" id="registerEmail" required />
+                </label>
+
+                <label>
+                    Пароль
+                    <input type="password" id="registerPassword" minlength="6" required />
+                </label>
+
+                <label>
+                    Навчальний заклад
+                    <select id="institutionSelect">
+                        <option value="">-- Оберіть навчальний заклад --</option>
+                        <option value="Надвірнянський фаховий коледж НТУ">Надвірнянський фаховий коледж НТУ</option>
+                        <option value="Національний транспортний університет">Національний транспортний університет</option>
+                        <option value="Університет нафти і газу">Університет нафти і газу</option>
+                        <option value="__custom__">Інший (ввести вручну)</option>
+                    </select>
+                </label>
+
+                <label id="customInstitutionWrapper" style="display:none;">
+                    Вкажіть свій навчальний заклад
+                    <input type="text" id="customInstitution" placeholder="Назва навчального закладу" />
+                </label>
+
+                <button class="submit-test-btn" type="button" onclick="registerAdmin()">Зареєструвати</button>
+            </div>
+
+            <div id="registerMessage" class="auth-message"></div>
+        </div>
+    </section>
+
+    <script src="auth.js"></script>
+    <script src="register-admin.js"></script>
+</body>
+</html>
